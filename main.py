@@ -12,7 +12,6 @@ ip_pre = '.'.join(args.split('.')[:-1])
 ip.find_ip(ip_pre)
 row_num = ip.live_ip
 
-
 # row_num = 3
 class TableWidgetContextMenu(QWidget):
 
@@ -44,7 +43,7 @@ class TableWidgetContextMenu(QWidget):
         li = 0
         name1 = []
         aa = 0
-
+ # MAC部分
         for li in range(row_num):
             g = IP2MAC()
             mac.append(g.getMac(ip.ipaddress[li]))
@@ -55,11 +54,11 @@ class TableWidgetContextMenu(QWidget):
                 macup = "Unknown"
             arr[li][2] = macup
             li = li + 1
-
+ #IP部分
         for cc in range(row_num):
             arr[cc][1] = ip.ipaddress[cc]
             cc = cc + 1
-
+ #名称部分
         for aa in range(row_num):
             if mac[aa] is not None:
                 namen = dname.getname(mac[aa])
