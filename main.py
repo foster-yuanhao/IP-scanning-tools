@@ -2,15 +2,19 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import pyperclip
+
+import attack
 import ip
 from mac import IP2MAC
 import dname
+from attack import *
 
 addr = ip.find_local_ip()
 args = "".join(addr)
 ip_pre = '.'.join(args.split('.')[:-1])
 ip.find_ip(ip_pre)
 row_num = ip.live_ip
+
 
 # row_num = 3
 class TableWidgetContextMenu(QWidget):
@@ -43,7 +47,7 @@ class TableWidgetContextMenu(QWidget):
         li = 0
         name1 = []
         aa = 0
- # MAC部分
+#MAC地址
         for li in range(row_num):
             g = IP2MAC()
             mac.append(g.getMac(ip.ipaddress[li]))
@@ -54,11 +58,11 @@ class TableWidgetContextMenu(QWidget):
                 macup = "Unknown"
             arr[li][2] = macup
             li = li + 1
- #IP部分
+
         for cc in range(row_num):
             arr[cc][1] = ip.ipaddress[cc]
             cc = cc + 1
- #名称部分
+#设备名称
         for aa in range(row_num):
             if mac[aa] is not None:
                 namen = dname.getname(mac[aa])
@@ -119,7 +123,10 @@ class TableWidgetContextMenu(QWidget):
                 elif action == item5:
                     print("a")
                 elif action == item6:
-                    print("a")
+                    import os
+                    #os.system('python attack.py')
+                    attack.ha(self.tableWidget.item(rowIndex, 1).text())
+                    #attack.getway(self.tableWidget.item(rowIndex, 1).text())
             else:
                 return
 
@@ -129,3 +136,4 @@ if __name__ == "__main__":
     main = TableWidgetContextMenu()
     main.show()
     sys.exit(app.exec_())
+
