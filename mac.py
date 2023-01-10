@@ -37,6 +37,3 @@ class IP2MAC:
         result = os.popen('arp -n {}'.format(ip))
         result = self.patt_mac.search(result.read())
         return result.group() if result else None
-
-
-
