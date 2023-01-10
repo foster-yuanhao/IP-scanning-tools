@@ -46,6 +46,7 @@ def find_local_ip():
     获取本机当前ip地址
     :return: 返回本机ip地址
     """
+
     myname = socket.getfqdn(socket.gethostname())
     if myname.find(".") == -1:
         myaddr = socket.gethostbyname(myname)

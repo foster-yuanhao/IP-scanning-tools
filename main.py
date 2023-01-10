@@ -13,6 +13,7 @@ from PyQt5.QtCore import *
 import pyperclip
 from PyQt5.QtWidgets import QMessageBox,QApplication
 import ip
+import wol
 from mac import IP2MAC
 import dname
 from attack import *
@@ -152,6 +153,10 @@ class TableWidgetContextMenu(QWidget):
                 elif action == item9:
                     pyperclip.copy(self.tableWidget.item(rowIndex, 0).text()+"\r"+self.tableWidget.item(rowIndex, 1).text()+"\n"+ self.tableWidget.item(rowIndex, 2).text() )
                 elif action == item3:
+                    deviceName = self.tableWidget.item(rowIndex, 0).text()
+                    ipAdd = self.tableWidget.item(rowIndex, 1).text()
+                    macAdd =  self.tableWidget.item(rowIndex, 2).text()
+                    wol.wakeOn(deviceName, ipAdd, macAdd)
                     print("a")
                 elif action == item4:
                     print("a")
