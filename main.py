@@ -150,7 +150,7 @@ class TableWidgetContextMenu(QWidget):
                 elif action == item2:
                     pyperclip.copy(self.tableWidget.item(rowIndex, 2).text())
                 elif action == item9:
-                    
+                    pyperclip.copy(self.tableWidget.item(rowIndex, 0).text()+"\r"+self.tableWidget.item(rowIndex, 1).text()+"\n"+ self.tableWidget.item(rowIndex, 2).text() )
                 elif action == item3:
                     print("a")
                 elif action == item4:
