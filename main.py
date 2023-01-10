@@ -131,8 +131,10 @@ class TableWidgetContextMenu(QWidget):
                 # 构造菜单
                 menu = QMenu()
                 # 添加菜单的选项
+                item0 = menu.addAction("COPY NAME")
                 item1 = menu.addAction("COPY IPV4 ADDRESS")
                 item2 = menu.addAction("COPY MAC ADDRESS")
+                item9 = menu.addAction("COPY ALL")
                 item3 = menu.addAction("WOL")
                 item4 = menu.addAction("PORT SCAN")
                 item5 = menu.addAction("PING")
@@ -143,8 +145,12 @@ class TableWidgetContextMenu(QWidget):
                 action = menu.exec(screenPos)
                 if action == item1:
                     pyperclip.copy(self.tableWidget.item(rowIndex, 1).text())
+                elif action == item0:
+                    pyperclip.copy(self.tableWidget.item(rowIndex, 0).text())
                 elif action == item2:
                     pyperclip.copy(self.tableWidget.item(rowIndex, 2).text())
+                elif action == item9:
+                    
                 elif action == item3:
                     print("a")
                 elif action == item4:
