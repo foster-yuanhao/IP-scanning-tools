@@ -47,7 +47,11 @@ def find_local_ip():
     :return: 返回本机ip地址
     """
     myname = socket.getfqdn(socket.gethostname())
-    myaddr = socket.gethostbyname(myname)
-    #myaddr = "192.168.0.182"
-    return myaddr
+    if myname.find(".") == -1:
+        myaddr = socket.gethostbyname(myname)
+        return myaddr
+    else:
+        a = myname.split(".")[0]#0表示留下的部分 0是前面 1是后面
+        myaddr = socket.gethostbyname(a)
+        return myaddr
 
