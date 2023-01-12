@@ -154,10 +154,11 @@ class TableWidgetContextMenu(QWidget):
                     pyperclip.copy(self.tableWidget.item(rowIndex, 0).text()+"\r"+self.tableWidget.item(rowIndex, 1).text()+"\n"+ self.tableWidget.item(rowIndex, 2).text() )
                 elif action == item3:
                     deviceName = self.tableWidget.item(rowIndex, 0).text()
-                    ipAdd = self.tableWidget.item(rowIndex, 1).text()
                     macAdd =  self.tableWidget.item(rowIndex, 2).text()
-                    wol.wakeOn(deviceName, ipAdd, macAdd)
-                    print("a")
+                    if macAdd == "Unknown":
+                        pass
+                    else:
+                        wol.wakeOn(deviceName, macAdd)
                 elif action == item4:
                     print("a")
                 elif action == item5:
