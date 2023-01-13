@@ -2,12 +2,11 @@ import wmi
 from scapy.all import (
     ARP,
     Ether,
-    sendp,
     getmacbyip,
-    get_if_hwaddr
 
 )
-import signal
+import subprocess
+from tkinter import Tk, Label
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import pyperclip
@@ -17,7 +16,7 @@ from mac import IP2MAC
 import dname
 from attack import *
 import wol
-
+import socket
 addr = ip.find_local_ip()
 args = "".join(addr)
 ip_pre = '.'.join(args.split('.')[:-1])
@@ -160,10 +159,25 @@ class TableWidgetContextMenu(QWidget):
                     else:
                         wol.wakeOn(deviceName, macAdd)
                 elif action == item4:
-                    pass
+                        ipdz = self.tableWidget.item(rowIndex, 1).text()
+                        portop = []
+                        a = 0
+                        for port in range(0, 5000 + 1):
+                            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            sock.settimeout(0.0000000001)
+                            result = sock.connect_ex((ipdz, port))
+                            if result == 0:
+                                portop.append(port)
+                                a = a + 1
+                            else:
+                                pass
+                        root = Tk()
+                        root.title("Port Result")
+                        label = Label(root, text="It's have "+str(a)+" ports are opened"+"\n"+"It's have "+str(portop))
+                        label.pack()
+                        root.mainloop()
                 elif action == item5:
-                    import subprocess
-                    from tkinter import Tk, Label
+
 
                     def ping_host(host):
                         p = subprocess.Popen(["ping", "-n", "1", host], stdout=subprocess.PIPE)
@@ -173,7 +187,6 @@ class TableWidgetContextMenu(QWidget):
                     def show_ping_result():
                         host = self.tableWidget.item(rowIndex, 1).text()
                         output = ping_host(host)
-
                         root = Tk()
                         root.title("Ping Result")
                         label = Label(root, text=output)
@@ -181,6 +194,8 @@ class TableWidgetContextMenu(QWidget):
                         root.mainloop()
 
                     show_ping_result()
+
+
                 elif action == item6:
                     TargetIp = self.tableWidget.item(rowIndex, 1).text()  # 我ipad联网之后分配的ip
                     #自动获取当前网关
