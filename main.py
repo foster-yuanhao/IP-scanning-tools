@@ -13,10 +13,10 @@ from PyQt5.QtCore import *
 import pyperclip
 from PyQt5.QtWidgets import QMessageBox,QApplication
 import ip
-import wol
 from mac import IP2MAC
 import dname
 from attack import *
+import wol
 
 addr = ip.find_local_ip()
 args = "".join(addr)
@@ -138,7 +138,7 @@ class TableWidgetContextMenu(QWidget):
                 item9 = menu.addAction("COPY ALL")
                 item3 = menu.addAction("WOL")
                 item4 = menu.addAction("PORT SCAN")
-                item5 = menu.addAction("PING")
+                item5 = menu.addAction("PING SCAN")
                 item6 = menu.addAction("KICK")
                 # 获得相对屏幕的位置
                 screenPos = self.tableWidget.mapToGlobal(pos)
@@ -154,15 +154,33 @@ class TableWidgetContextMenu(QWidget):
                     pyperclip.copy(self.tableWidget.item(rowIndex, 0).text()+"\r"+self.tableWidget.item(rowIndex, 1).text()+"\n"+ self.tableWidget.item(rowIndex, 2).text() )
                 elif action == item3:
                     deviceName = self.tableWidget.item(rowIndex, 0).text()
-                    macAdd =  self.tableWidget.item(rowIndex, 2).text()
+                    macAdd = self.tableWidget.item(rowIndex, 2).text()
                     if macAdd == "Unknown":
                         pass
                     else:
                         wol.wakeOn(deviceName, macAdd)
                 elif action == item4:
-                    print("a")
+                    pass
                 elif action == item5:
-                    print("a")
+                    import subprocess
+                    from tkinter import Tk, Label
+
+                    def ping_host(host):
+                        p = subprocess.Popen(["ping", "-n", "1", host], stdout=subprocess.PIPE)
+                        output, _ = p.communicate()
+                        return output
+
+                    def show_ping_result():
+                        host = self.tableWidget.item(rowIndex, 1).text()
+                        output = ping_host(host)
+
+                        root = Tk()
+                        root.title("Ping Result")
+                        label = Label(root, text=output)
+                        label.pack()
+                        root.mainloop()
+
+                    show_ping_result()
                 elif action == item6:
                     TargetIp = self.tableWidget.item(rowIndex, 1).text()  # 我ipad联网之后分配的ip
                     #自动获取当前网关
