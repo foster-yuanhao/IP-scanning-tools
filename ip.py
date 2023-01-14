@@ -29,7 +29,7 @@ def ping_ip(ip_str):
 
 def find_ip(ip_prefix):
     '''''
-    给出当前的ip地址段 ，然后扫描整个段所有地址
+    Given the current IP address segment, then scan all addresses for the entire segment
     '''
     threads = []
     for i in range(1, 256):
@@ -43,16 +43,15 @@ def find_ip(ip_prefix):
 
 def find_local_ip():
     """
-    获取本机当前ip地址
-    :return: 返回本机ip地址
+    Get the current device IP address
+    Return IP address
     """
-
     myname = socket.getfqdn(socket.gethostname())
     if myname.find(".") == -1:
         myaddr = socket.gethostbyname(myname)
         return myaddr
     else:
-        a = myname.split(".")[0]#0表示留下的部分 0是前面 1是后面
+        a = myname.split(".")[0]
         myaddr = socket.gethostbyname(a)
         return myaddr
 

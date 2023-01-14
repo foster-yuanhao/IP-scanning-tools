@@ -24,11 +24,11 @@ ip.find_ip(ip_pre)
 row_num = ip.live_ip
 
 def build_packet(TargetIp, GateWayAddr):
-        print("[-] Obtaining mac from {}".format(TargetIp))  # 打印信息
+        print("[-] Obtaining mac from {}".format(TargetIp))  # Print the message
         TargetMacAddr = None
         while not TargetMacAddr:
-            TargetMacAddr = getmacbyip(TargetIp)  # 获得ipd的mac地址
-        MyMacAddr = get_if_hwaddr("WLAN")  # 获得我们网卡的mac地址
+            TargetMacAddr = getmacbyip(TargetIp)  #Get MAC address
+        MyMacAddr = get_if_hwaddr("WLAN")  #Get the MAC address of network card
         pkt = Ether(src=MyMacAddr, dst=TargetMacAddr) / ARP(hwsrc=MyMacAddr, psrc=GateWayAddr, hwdst=TargetMacAddr,
                                                             pdst=TargetIp)
         pkt.show()
@@ -44,7 +44,7 @@ class Thread(QThread):
         super(Thread, self).__init__()
     def run(self):
         while True:
-            sendp(packet, inter=2, iface="WLAN")  # inter表示发送包的间隔,iface表示我们的网卡
+            sendp(packet, inter=2, iface="WLAN")  #inter shows the duration of sending packet, iface show the internet speed
 # row_num = 3
 class TableWidgetContextMenu(QWidget):
 
@@ -61,12 +61,12 @@ class TableWidgetContextMenu(QWidget):
         self.tableWidget.setRowCount(row_num)
         self.tableWidget.setColumnCount(3)
         layout.addWidget(self.tableWidget)
-        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)  # 禁止编辑表格
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)  # 列宽自适应
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)  #Forbidden editing the table
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)  #Column width adaption
         # self.tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         a = 0
         while a < row_num:
-            self.tableWidget.setRowHeight(a, 10)  # 行高
+            self.tableWidget.setRowHeight(a, 10)  #row height
             a = a + 1
 
         arr = [[0] * 3 for _ in range(2000)]
@@ -76,7 +76,7 @@ class TableWidgetContextMenu(QWidget):
         li = 0
         name1 = []
         aa = 0
-#MAC地址
+#MAC address
         for li in range(row_num):
             g = IP2MAC()
             mac.append(g.getMac(ip.ipaddress[li]))
@@ -91,7 +91,7 @@ class TableWidgetContextMenu(QWidget):
         for cc in range(row_num):
             arr[cc][1] = ip.ipaddress[cc]
             cc = cc + 1
-#设备名称
+#Device Name
         for aa in range(row_num):
             if mac[aa] is not None:
                 namen = dname.getname(mac[aa])
@@ -111,26 +111,26 @@ class TableWidgetContextMenu(QWidget):
         for i in range(row_num + 1):
             for j in range(3):
                 newItem = QTableWidgetItem(arr[i][j])
-                newItem.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)  # 居中显示
+                newItem.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)  #Centre Alignment
                 self.tableWidget.setItem(i, j, newItem)
 
-        # 允许单机右键响应
+        #Allow right click action
         self.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
-        # 构建右键的点击事件
+        #right click action
         self.tableWidget.customContextMenuRequested.connect(self.generateMenu)
         self.setLayout(layout)
 
     def generateMenu(self, pos):
         print(pos)
-        # 获得右键所点击的索引值
+        #get the index the perform right click
         for i in self.tableWidget.selectionModel().selection().indexes():
-            # 获得当前的行数目
+            #get row index
             rowIndex = i.row()
-            # 如果选择的索引小于2, 弹出上下文菜单
-            if rowIndex < row_num:  # 写行数
-                # 构造菜单
+            #if row index less than row number, display the menu
+            if rowIndex < row_num:
+                #create menu
                 menu = QMenu()
-                # 添加菜单的选项
+                #create menu options
                 item0 = menu.addAction("COPY NAME")
                 item1 = menu.addAction("COPY IPV4 ADDRESS")
                 item2 = menu.addAction("COPY MAC ADDRESS")
@@ -139,9 +139,9 @@ class TableWidgetContextMenu(QWidget):
                 item4 = menu.addAction("PORT SCAN")
                 item5 = menu.addAction("PING SCAN")
                 item6 = menu.addAction("KICK")
-                # 获得相对屏幕的位置
+                #Get the screen position
                 screenPos = self.tableWidget.mapToGlobal(pos)
-                # 被阻塞, 执行菜单
+                #Action of menu
                 action = menu.exec(screenPos)
                 if action == item1:
                     pyperclip.copy(self.tableWidget.item(rowIndex, 1).text())
@@ -197,19 +197,18 @@ class TableWidgetContextMenu(QWidget):
 
 
                 elif action == item6:
-                    TargetIp = self.tableWidget.item(rowIndex, 1).text()  # 我ipad联网之后分配的ip
-                    #自动获取当前网关
+                    TargetIp = self.tableWidget.item(rowIndex, 1).text()  #The ip address of device
+                    #Get wmi
                     wmi_obj = wmi.WMI()
                     wmi_sql = "select DefaultIPGateway from Win32_NetworkAdapterConfiguration where IPEnabled=TRUE"
                     wmi_out = wmi_obj.query(wmi_sql)
-                    #产生攻击发送包
+                    #Produce the packet
                     for dev in wmi_out:
                         gao = dev.DefaultIPGateway[0]
-                    GateWayAddr = gao  # 路由器地址/网关地址
+                    GateWayAddr = gao  #Get router address
                     signal.signal(signal.SIGINT, stop)
                     global packet
                     packet = build_packet(TargetIp, GateWayAddr)
-                    #线程
                     self.show_child()
                     thread = Thread()
                     thread.start()
@@ -230,14 +229,14 @@ class Child(QMainWindow):
         label = QLabel(self)
         label.resize(200, 100)
         label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        label.setText("系统正在运行")
+        label.setText("The System is Running")
         label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         self.setGeometry(500, 500, 250, 250)
         self.setWindowTitle('Processing')
         self.show()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, '警告', "是否回到原界面", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(self, 'Error', "Is return to the origin interface?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             pass
